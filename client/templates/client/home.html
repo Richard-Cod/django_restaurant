@@ -4,6 +4,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load widget_tweaks %}
 
 {% block content %}
   <!-- ======= Hero Section ======= -->
@@ -275,37 +276,53 @@
           <p>Réservez une table</p>
         </div>
 
-        <form action="forms/book-a-table.php" method="post" role="form" class="php-email-form" data-aos="fade-up" data-aos-delay="100">
+       
+
+        <div id="reservationAjaxResult" class="alert alert-dismissible fade show " role="alert">
+            
+        </div>
+
+
+        <form novalidate action="{% url 'reservation' %}" id="reservationForm" method="post" role="form" class="php-email-form" data-aos="fade-up" data-aos-delay="100">
+          {% csrf_token %}
           <div class="form-row">
             <div class="col-lg-4 col-md-6 form-group">
-              <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars">
-              <div class="validate"></div>
+            {{ ReservationForm.name.errors }}
+            {% render_field ReservationForm.name class+="form-control" placeholder="Entrer votre nom" %}
+              <div class="alert-danger validation"></div>
             </div>
             <div class="col-lg-4 col-md-6 form-group">
-              <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email">
-              <div class="validate"></div>
+            {{ ReservationForm.email.errors }}
+               {% render_field ReservationForm.email class+="form-control" placeholder="Entrer votre email" %}
+              <div class="alert-danger validation"></div>
             </div>
             <div class="col-lg-4 col-md-6 form-group">
-              <input type="text" class="form-control" name="phone" id="phone" placeholder="Your Phone" data-rule="minlen:4" data-msg="Please enter at least 4 chars">
-              <div class="validate"></div>
+            {{ ReservationForm.phoneNumber.errors }}
+               {% render_field ReservationForm.phoneNumber class+="form-control" placeholder="Entrer votre numéro de Tel" %}
+              <div class="alert-danger validation"></div>
             </div>
             <div class="col-lg-4 col-md-6 form-group">
-              <input type="text" name="date" class="form-control" id="date" placeholder="Date" data-rule="minlen:4" data-msg="Please enter at least 4 chars">
-              <div class="validate"></div>
+            {{ ReservationForm.date.errors }}
+               {% render_field ReservationForm.date class+="form-control datepicker" placeholder="Entrer la date de reservation" %}
+              <div class="alert-danger validation"></div>
             </div>
             <div class="col-lg-4 col-md-6 form-group">
-              <input type="text" class="form-control" name="time" id="time" placeholder="Time" data-rule="minlen:4" data-msg="Please enter at least 4 chars">
-              <div class="validate"></div>
+            {{ ReservationForm.time.errors }}
+               {% render_field ReservationForm.time class+="form-control" placeholder='Entrer l heure de reservation' %}
+              <div class="alert-danger validation"></div>
             </div>
             <div class="col-lg-4 col-md-6 form-group">
-              <input type="number" class="form-control" name="people" id="people" placeholder="# of people" data-rule="minlen:1" data-msg="Please enter at least 1 chars">
-              <div class="validate"></div>
+            {{ ReservationForm.nbOfPeople.errors }}
+               {% render_field ReservationForm.nbOfPeople class+="form-control" placeholder="Entrer le nombre de personnes" %}
+              <div class="alert-danger validation"></div>
             </div>
           </div>
           <div class="form-group">
-            <textarea class="form-control" name="message" rows="5" placeholder="Message"></textarea>
-            <div class="validate"></div>
+          {{ ReservationForm.message.errors }}
+               {% render_field ReservationForm.message class+="form-control" placeholder="Entrer le message" %}
+            <div class="alert-danger validation"></div>
           </div>
+
           <div class="mb-3">
             <div class="loading">Loading</div>
             <div class="error-message"></div>
@@ -511,4 +528,88 @@
   </main><!-- End #main -->
 
 
+
 {% endblock content %}
+
+
+{% block script %}
+  {{block.super}}
+
+ <script>
+
+
+$( document ).ready(function() {
+  
+  $("#reservationForm").submit(function(event){
+	event.preventDefault(); //prevent default action 
+  const divAjax = $('#reservationAjaxResult')
+	var post_url = $(this).attr("action"); //get form action url
+	var form_data = $(this).serialize(); //Encode form elements for submission
+	
+  divAjax.removeClass("alert-success")
+  $('.validation').html("")
+  $("#reservationForm input,#reservationForm textarea").css('border','solid').text('')
+  $("#reservationForm .validation").removeClass('alert-danger')
+
+  divAjax.click(() =>  {divAjax.fadeOut( 2000);});
+
+  $("#reservationForm input").on('input',(e) => {
+    console.log($(e.target))
+    $(e.target).css('border','solid').next('.validation').removeClass('alert-danger').text('')
+  })
+
+	$.post( post_url, form_data, function( response ) {
+    console.log(response)
+
+    if(response.status == 201){
+      divAjax.removeClass("alert-danger")
+      divAjax.addClass("alert-success")
+      $("#reservationForm input,#reservationForm textarea").val('')
+      divAjax.html(`${response.message}`)
+
+ 
+
+    }else{
+      //divAjax.removeClass("alert-success")
+      //divAjax.addClass("alert-danger")
+      let htmlToPlug="";
+      for (const [key, value] of Object.entries(response.formError)) {
+        $(`input[name=${key}]`).css( "border", "solid red" )
+
+        //$(`input[name=${key}]`).next( ".alert-danger" ).text(value[0])
+        $(`input[name=${key}]`).next( ".validation" ).addClass('alert-danger').text(value[0])
+        
+        
+       // htmlToPlug += `${key.toUpperCase()} =>  ${value[0]} <br />`
+      }
+      
+      //divAjax.html(`${htmlToPlug}`)
+
+
+
+
+    }
+
+	  //$("#server-results").html( response );
+	});
+});
+    
+    
+
+  $(function() {
+    $( ".datepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "2020:2021",
+      // You can put more options here.
+
+    });
+  });
+
+
+});
+
+
+  </script>
+
+{% endblock %}

@@ -1,8 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render,HttpResponseRedirect
+from django.http import HttpResponse,JsonResponse
 # Create your views here.
 
-from client.models import Category, Food ,Event ,Reason,Info
+from client.models import Category, Food ,Event ,Reason,Info,Reservation
+from client.forms import ReservationForm
 
 CATEGORIES = [
      {
@@ -108,6 +109,8 @@ CHEFS = [
 ]
 
 def home(request):
+     reservationForm = ReservationForm()
+     
      return render(request,"home.html",{
                                         'CATEGORIES':Category.objects.all(),
                                         'MENUS' : Food.objects.all(),
@@ -116,5 +119,28 @@ def home(request):
                                         'INFOS':Info.objects.first(),
                                         'EVENTS':Event.objects.all(),
                                         'GALERIE':GALERIE,
-                                        'CHEFS':CHEFS
+                                        'CHEFS':CHEFS,
+                                        'ReservationForm':reservationForm
                                         })
+
+def makeReservation(request):
+     print("Reservation demande")
+     if request.method == 'POST':
+          form = ReservationForm(request.POST)
+          if form.is_valid():
+               print(form.cleaned_data)
+               obj = ReservationForm(form.cleaned_data)
+               obj.save()
+               
+               return JsonResponse(data={
+                    "message":"Quel succès ! Votre Reservation a bien été prise en compte",
+                    "status":201,
+               })
+          else:
+               return JsonResponse(data={
+                    "message":"Il y'a des erreurs dans le formulaire",
+                    "status":400,
+                    "formError":form.errors
+               })
+               
+    

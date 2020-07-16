@@ -3,6 +3,7 @@ from django.db import models
 from datetime import datetime
 # Create your models here.
 
+from django.contrib.auth.models import User
 
 class TimeStampMixin(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -58,3 +59,17 @@ class Info(models.Model):
     def __str__(self):
         return f'Les infos '    
      
+
+#user = models.ForeignKey(User, related_name='following')
+
+class Reservation(TimeStampMixin):
+    name        = models.CharField(max_length=100)
+    email       = models.EmailField(max_length=254)
+    phoneNumber = models.CharField(max_length=20)
+    date        = models.DateField()
+    time        = models.TimeField()
+    nbOfPeople  = models.IntegerField()
+    message     = models.TextField()
+       
+    def __str__(self):
+        return f'{self.name} pour {self.date} à {self.time} et {self.nbOfPeople} pers'
