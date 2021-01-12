@@ -303,12 +303,12 @@
             </div>
             <div class="col-lg-4 col-md-6 form-group">
             {{ ReservationForm.date.errors }}
-               {% render_field ReservationForm.date class+="form-control datepicker" placeholder="Entrer la date de reservation" %}
+               {% render_field ReservationForm.date class+="form-control datepicker" placeholder="Entrer la date de reservation Ex : 13/01/2021" %}
               <div class="alert-danger validation"></div>
             </div>
             <div class="col-lg-4 col-md-6 form-group">
             {{ ReservationForm.time.errors }}
-               {% render_field ReservationForm.time class+="form-control" placeholder='Entrer l heure de reservation' %}
+               {% render_field ReservationForm.time class+="form-control" placeholder='Entrer l heure de reservation Ex: 18:45' %}
               <div class="alert-danger validation"></div>
             </div>
             <div class="col-lg-4 col-md-6 form-group">
@@ -491,7 +491,7 @@
 
           <div class="col-lg-8 mt-5 mt-lg-0">
 
-            <form action="forms/contact.php" method="post" role="form" class="php-email-form">
+            <form action="" method="post" role="form" class="php-email-form">
               <div class="form-row">
                 <div class="col-md-6 form-group">
                   <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
@@ -515,7 +515,7 @@
                 <div class="error-message"></div>
                 <div class="sent-message">Your message has been sent. Thank you!</div>
               </div>
-              <div class="text-center"><button type="submit">Send Message</button></div>
+              <div class="text-center disabled"><button type="submit">Envoyer un  message (Indispo pour le moment)</button></div>
             </form>
 
           </div>
@@ -573,6 +573,7 @@ $( document ).ready(function() {
       //divAjax.removeClass("alert-success")
       //divAjax.addClass("alert-danger")
       let htmlToPlug="";
+      console.log(response.formError);
       for (const [key, value] of Object.entries(response.formError)) {
         $(`input[name=${key}]`).css( "border", "solid red" )
 
@@ -596,15 +597,6 @@ $( document ).ready(function() {
     
     
 
-  $(function() {
-    $( ".datepicker" ).datepicker({
-      changeMonth: true,
-      changeYear: true,
-      yearRange: "2020:2021",
-      // You can put more options here.
-
-    });
-  });
 
 
 });

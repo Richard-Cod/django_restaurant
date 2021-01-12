@@ -4,6 +4,7 @@ from django.http import HttpResponse,JsonResponse
 
 from client.models import Category, Food ,Event ,Reason,Info,Reservation
 from client.forms import ReservationForm
+from django.views.decorators.csrf import csrf_exempt
 
 CATEGORIES = [
      {
@@ -123,6 +124,7 @@ def home(request):
                                         'ReservationForm':reservationForm
                                         })
 
+@csrf_exempt
 def makeReservation(request):
      print("Reservation demande")
      if request.method == 'POST':
